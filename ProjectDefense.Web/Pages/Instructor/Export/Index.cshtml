@@ -1,0 +1,37 @@
+@page
+@model ProjectDefense.Web.Pages.Instructor.Export.IndexModel
+@{
+    ViewData["Title"] = "Export Reservations";
+}
+
+<h1>Export Reservations</h1>
+
+<form method="post">
+    <div class="row g-3">
+        <div class="col-md-4">
+            <label class="form-label">Room</label>
+            <select asp-for="Input.RoomId" asp-items="Model.RoomOptions" class="form-select"></select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">From</label>
+            <input asp-for="Input.FromLocal" type="datetime-local" class="form-control" />
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">To</label>
+            <input asp-for="Input.ToLocal" type="datetime-local" class="form-control" />
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Format</label>
+            <select asp-for="Input.Format" class="form-select">
+                <option value="txt">.txt</option>
+                <option value="xlsx">.xlsx</option>
+                <option value="pdf">.pdf</option>
+            </select>
+        </div>
+    </div>
+    <div class="mt-3">
+        <button class="btn btn-primary" type="submit">Export</button>
+        <a asp-page="/Instructor/Dashboard" class="btn btn-secondary">Back</a>
+    </div>
+</form>
+
