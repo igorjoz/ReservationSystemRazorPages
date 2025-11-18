@@ -1,0 +1,48 @@
+@page
+@model ProjectDefense.Web.Pages.Instructor.DashboardModel
+@{
+    ViewData["Title"] = "Instructor Dashboard";
+}
+
+<h1>Instructor Dashboard</h1>
+
+<p>
+    <a asp-page="/Instructor/Rooms/Index" class="btn btn-secondary">Manage Rooms</a>
+    <a asp-page="/Instructor/Availability/Create" class="btn btn-primary">Define Availability</a>
+    <a asp-page="/Instructor/Blocks/Create" class="btn btn-warning">Block Period</a>
+    <a asp-page="/Instructor/Bans/Create" class="btn btn-danger">Ban Student</a>
+    <a asp-page="/Instructor/Export/Index" class="btn btn-info">Export</a>
+</p>
+
+<h2>Upcoming Reservations</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Room</th>
+            <th>Time</th>
+            <th>Student</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var r in Model.Upcoming)
+    {
+        <tr>
+            <td>@r.RoomLabel</td>
+            <td>@r.StartLocal.ToString("g") - @r.EndLocal.ToString("t")</td>
+            <td>@(string.IsNullOrEmpty(r.StudentEmail) ? "(free)" : r.StudentEmail)</td>
+            <td>
+                @if (!string.IsNullOrEmpty(r.StudentEmail))
+                {
+                    <div class="d-flex gap-2">
+                        <form method="post">
+                            <button name="cancelId" value="@r.Id" class="btn btn-sm btn-warning">Cancel</button>
+                        </form>
+                        <a asp-page="/Instructor/Reservations/Reassign" asp-route-id="@r.Id" class="btn btn-sm btn-primary">Reassign</a>
+                    </div>
+                }
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
