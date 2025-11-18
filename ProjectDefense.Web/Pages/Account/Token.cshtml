@@ -1,0 +1,13 @@
+@page
+@model ProjectDefense.Web.Pages.Account.TokenModel
+@{
+    ViewData["Title"] = "API Token";
+}
+
+<h1>Your API Token</h1>
+
+<div class="card card-body">
+    <div class="mb-2"><strong>Email:</strong> @Model.Email</div>
+    <div class="mb-2"><strong>Token:</strong> <code>@Model.ApiToken</code></div>
+    <p class="text-muted">Use this token with the console client or API booking endpoint.</p>
+</div>

@@ -1,0 +1,47 @@
+@page
+@model ProjectDefense.Web.Pages.Instructor.Availability.CreateModel
+@{
+    ViewData["Title"] = "Define Availability";
+}
+
+<h1>Define Availability</h1>
+
+<form method="post">
+    <div class="row g-3">
+        <div class="col-md-4">
+            <label class="form-label">Room</label>
+            <select asp-for="Input.RoomId" asp-items="Model.RoomOptions" class="form-select"></select>
+            <span asp-validation-for="Input.RoomId" class="text-danger"></span>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">From Date</label>
+            <input asp-for="Input.FromDate" class="form-control" type="date" />
+            <span asp-validation-for="Input.FromDate" class="text-danger"></span>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">To Date</label>
+            <input asp-for="Input.ToDate" class="form-control" type="date" />
+            <span asp-validation-for="Input.ToDate" class="text-danger"></span>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Start Time</label>
+            <input asp-for="Input.StartTime" class="form-control" type="time" />
+            <span asp-validation-for="Input.StartTime" class="text-danger"></span>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">End Time</label>
+            <input asp-for="Input.EndTime" class="form-control" type="time" />
+            <span asp-validation-for="Input.EndTime" class="text-danger"></span>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Slot Duration (min)</label>
+            <input asp-for="Input.SlotDurationMinutes" class="form-control" />
+            <span asp-validation-for="Input.SlotDurationMinutes" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="mt-3">
+        <button class="btn btn-primary" type="submit">Create</button>
+        <a asp-page="../Dashboard" class="btn btn-secondary">Back</a>
+    </div>
+</form>
+
