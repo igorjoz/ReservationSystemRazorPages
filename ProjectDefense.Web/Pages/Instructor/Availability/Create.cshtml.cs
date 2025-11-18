@@ -49,6 +49,8 @@ public class CreateModel : PageModel
 
     public async Task OnGet()
     {
+        if (Input.FromDate == default) Input.FromDate = DateOnly.FromDateTime(DateTime.Now);
+        if (Input.ToDate == default) Input.ToDate = DateOnly.FromDateTime(DateTime.Now);
         RoomOptions = new SelectList(await _db.Rooms.OrderBy(r => r.Name).ToListAsync(), nameof(Room.Id), nameof(Room.Name));
     }
 
