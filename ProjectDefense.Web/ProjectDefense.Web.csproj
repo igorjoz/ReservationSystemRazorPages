@@ -27,8 +27,4 @@
     <ProjectReference Include="..\ProjectDefense.Shared\ProjectDefense.Shared.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Remove="Data\Migrations\**\*.cs" />
-  </ItemGroup>
-
 </Project>
