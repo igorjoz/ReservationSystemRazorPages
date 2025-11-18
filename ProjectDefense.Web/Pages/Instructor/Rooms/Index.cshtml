@@ -1,0 +1,36 @@
+@page
+@using ProjectDefense.Shared.Entities
+@model ProjectDefense.Web.Pages.Instructor.Rooms.IndexModel
+@{
+    ViewData["Title"] = "Rooms";
+}
+
+<h1>Rooms</h1>
+
+<p>
+    <a asp-page="Create" class="btn btn-primary">Create Room</a>
+    <a asp-page="../Dashboard" class="btn btn-secondary">Back</a>
+    </p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Number</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var r in Model.Rooms)
+    {
+        <tr>
+            <td>@r.Name</td>
+            <td>@r.Number</td>
+            <td>
+                <a asp-page="Edit" asp-route-id="@r.Id">Edit</a> |
+                <a asp-page="Delete" asp-route-id="@r.Id">Delete</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+    </table>
