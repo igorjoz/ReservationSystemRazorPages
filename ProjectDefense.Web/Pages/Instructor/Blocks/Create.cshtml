@@ -1,0 +1,25 @@
+@page
+@model ProjectDefense.Web.Pages.Instructor.Blocks.CreateModel
+@{
+    ViewData["Title"] = "Block Period";
+}
+
+<h2>Block Period</h2>
+
+<form method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="mb-3">
+        <label asp-for="Input.StartLocal" class="form-label">Start (Local Time)</label>
+        <input asp-for="Input.StartLocal" class="form-control" type="datetime-local" step="60" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="Input.EndLocal" class="form-label">End (Local Time)</label>
+        <input asp-for="Input.EndLocal" class="form-control" type="datetime-local" step="60" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="Input.Reason" class="form-label">Reason</label>
+        <input asp-for="Input.Reason" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-danger">Block Period</button>
+    <a asp-page="/Instructor/Dashboard" class="btn btn-secondary">Cancel</a>
+</form>
