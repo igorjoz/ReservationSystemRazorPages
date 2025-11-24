@@ -1,0 +1,75 @@
+@page
+@model ProjectDefense.Web.Pages.Student.Slots.IndexModel
+@{
+    ViewData["Title"] = "Available Slots";
+}
+
+<h1>Available Slots</h1>
+
+@if (Model.IsBanned)
+{
+    <div class="alert alert-danger">
+        You are banned from making reservations.
+    </div>
+}
+else
+{
+    @if (Model.CurrentReservation != null)
+    {
+        <div class="card mb-4 border-primary">
+            <div class="card-header bg-primary text-white">
+                Your Current Reservation
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">@Model.CurrentReservation.StartUtc.ToLocalTime().ToString("g") - @Model.CurrentReservation.EndUtc.ToLocalTime().ToString("t")</h5>
+                <p class="card-text">
+                    <strong>Room:</strong> @Model.CurrentReservation.Availability?.Room?.Name @Model.CurrentReservation.Availability?.Room?.Number<br />
+                    <strong>Instructor:</strong> @(Model.InstructorNames.ContainsKey(Model.CurrentReservation.Availability!.InstructorId) ? Model.InstructorNames[Model.CurrentReservation.Availability.InstructorId] : "Unknown")
+                </p>
+                <form method="post" asp-page-handler="Cancel" asp-route-slotId="@Model.CurrentReservation.Id">
+                    <button type="submit" class="btn btn-danger">Cancel Reservation</button>
+                </form>
+            </div>
+        </div>
+    }
+
+    <h3>Available Slots</h3>
+    @if (Model.AvailableSlots.Count == 0)
+    {
+        <p>No available slots at the moment.</p>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Room</th>
+                        <th>Instructor</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var slot in Model.AvailableSlots)
+                    {
+                        <tr>
+                            <td>@slot.StartUtc.ToLocalTime().ToString("d")</td>
+                            <td>@slot.StartUtc.ToLocalTime().ToString("t") - @slot.EndUtc.ToLocalTime().ToString("t")</td>
+                            <td>@slot.Availability?.Room?.Name @slot.Availability?.Room?.Number</td>
+                            <td>@(Model.InstructorNames.ContainsKey(slot.Availability!.InstructorId) ? Model.InstructorNames[slot.Availability.InstructorId] : "Unknown")</td>
+                            <td>
+                                <form method="post" asp-page-handler="Reserve" asp-route-slotId="@slot.Id">
+                                    <button type="submit" class="btn @(Model.CurrentReservation != null ? "btn-warning" : "btn-success")">
+                                        @(Model.CurrentReservation != null ? "Change" : "Reserve")
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+}

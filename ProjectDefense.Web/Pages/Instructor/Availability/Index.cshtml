@@ -1,0 +1,41 @@
+@page
+@model ProjectDefense.Web.Pages.Instructor.Availability.IndexModel
+@{
+    ViewData["Title"] = "Manage Availability";
+}
+
+<h2>Manage Availability</h2>
+
+<p>
+    <a asp-page="Create" class="btn btn-primary">Create New</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Room</th>
+            <th>Date Range</th>
+            <th>Time Range</th>
+            <th>Slot Duration</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Availabilities)
+        {
+            <tr>
+                <td>@item.Room?.Name @item.Room?.Number</td>
+                <td>@item.FromDate.ToShortDateString() - @item.ToDate.ToShortDateString()</td>
+                <td>@item.StartTime.ToShortTimeString() - @item.EndTime.ToShortTimeString()</td>
+                <td>@item.SlotDurationMinutes min</td>
+                <td>
+                    <a asp-page="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a>
+                    <form method="post" asp-page-handler="Delete" asp-route-id="@item.Id" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure? This will delete all associated slots!');">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<a asp-page="/Instructor/Dashboard" class="btn btn-secondary">Back to Dashboard</a>

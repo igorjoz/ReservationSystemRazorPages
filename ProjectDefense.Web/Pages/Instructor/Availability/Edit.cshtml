@@ -1,0 +1,45 @@
+@page "{id:guid}"
+@model ProjectDefense.Web.Pages.Instructor.Availability.EditModel
+@{
+    ViewData["Title"] = "Edit Availability";
+}
+
+<h2>Edit Availability</h2>
+
+<div class="alert alert-warning">
+    <strong>Warning:</strong> Editing availability will regenerate all slots. Any existing reservations for this availability will be lost/canceled.
+</div>
+
+<form method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="mb-3">
+        <label asp-for="Input.RoomId" class="form-label">Room</label>
+        <select asp-for="Input.RoomId" class="form-select" asp-items="Model.RoomOptions"></select>
+    </div>
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label asp-for="Input.FromDate" class="form-label">From Date</label>
+            <input asp-for="Input.FromDate" class="form-control" type="date" />
+        </div>
+        <div class="col-md-6 mb-3">
+            <label asp-for="Input.ToDate" class="form-label">To Date</label>
+            <input asp-for="Input.ToDate" class="form-control" type="date" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label asp-for="Input.StartTime" class="form-label">Start Time</label>
+            <input asp-for="Input.StartTime" class="form-control" type="time" />
+        </div>
+        <div class="col-md-6 mb-3">
+            <label asp-for="Input.EndTime" class="form-label">End Time</label>
+            <input asp-for="Input.EndTime" class="form-control" type="time" />
+        </div>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Input.SlotDurationMinutes" class="form-label">Slot Duration (minutes)</label>
+        <input asp-for="Input.SlotDurationMinutes" class="form-control" type="number" min="1" />
+    </div>
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+    <a asp-page="Index" class="btn btn-secondary">Cancel</a>
+</form>

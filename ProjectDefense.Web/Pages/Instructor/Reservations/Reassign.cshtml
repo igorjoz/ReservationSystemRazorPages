@@ -1,0 +1,29 @@
+@page "{id:guid}"
+@model ProjectDefense.Web.Pages.Instructor.Reservations.ReassignModel
+@{
+    ViewData["Title"] = "Reassign Reservation";
+}
+
+<h2>Reassign Reservation</h2>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <h5 class="card-title">Current Slot</h5>
+        <p class="card-text">
+            <strong>Time:</strong> @Model.Reservation?.StartUtc.ToLocalTime().ToString("g") - @Model.Reservation?.EndUtc.ToLocalTime().ToString("t")<br />
+            <strong>Current Student:</strong> @(Model.CurrentStudentEmail ?? "(none)")
+        </p>
+    </div>
+</div>
+
+<form method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="mb-3">
+        <label asp-for="NewSlotId" class="form-label">New Slot</label>
+        <select asp-for="NewSlotId" class="form-select" asp-items="Model.SlotOptions">
+            <option value="">-- Select New Slot --</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Reassign</button>
+    <a asp-page="/Instructor/Dashboard" class="btn btn-secondary">Cancel</a>
+</form>

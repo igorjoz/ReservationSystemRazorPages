@@ -17,7 +17,15 @@ public class TokenModel : PageModel
     public async Task OnGet()
     {
         var user = await _userManager.GetUserAsync(User);
-        Email = user?.Email ?? string.Empty;
-        ApiToken = user?.ApiToken ?? "";
+        if (user != null)
+        {
+            Email = user.Email ?? string.Empty;
+            if (string.IsNullOrEmpty(user.ApiToken))
+            {
+                user.ApiToken = Guid.NewGuid().ToString("N");
+                await _userManager.UpdateAsync(user);
+            }
+            ApiToken = user.ApiToken;
+        }
     }
 }

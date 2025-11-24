@@ -1,0 +1,28 @@
+@page
+@model ProjectDefense.Web.Pages.Instructor.Bans.CreateModel
+@{
+    ViewData["Title"] = "Ban Student";
+}
+
+<h2>Ban Student</h2>
+
+<form method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="mb-3">
+        <label asp-for="Input.StudentId" class="form-label">Student</label>
+        <select asp-for="Input.StudentId" class="form-select" asp-items="Model.StudentOptions">
+            <option value="">-- Select Student --</option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Input.UntilLocal" class="form-label">Ban Until (Local Time)</label>
+        <input asp-for="Input.UntilLocal" class="form-control" type="datetime-local" />
+        <div class="form-text">Leave empty for indefinite ban.</div>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Input.Reason" class="form-label">Reason</label>
+        <input asp-for="Input.Reason" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-danger">Ban Student</button>
+    <a asp-page="/Instructor/Dashboard" class="btn btn-secondary">Cancel</a>
+</form>
