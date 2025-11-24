@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using ProjectDefense.Shared.Data;
 using ProjectDefense.Shared.DTOs;
 using ProjectDefense.Shared.Entities;
 using ProjectDefense.Web.Data;
+using ProjectDefense.Web.Services;
 using System.Globalization;
 using Microsoft.AspNetCore.Localization;
 
@@ -18,6 +20,9 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>();
+
+builder.Services.AddTransient<IEmailSender, EmailSender>();
+
 builder.Services.AddRazorPages()
     .AddViewLocalization()
     .AddDataAnnotationsLocalization(options =>
@@ -136,6 +141,21 @@ app.MapPost("/api/slots/{id}/book", async (Guid id, BookSlotRequest request, App
     return Results.Ok("Booked successfully.");
 })
 .WithName("BookSlot")
+.WithOpenApi();
+
+app.MapGet("/api/test-email", async (string to, IEmailSender emailSender) =>
+{
+    try
+    {
+        await emailSender.SendEmailAsync(to, "Test Email", "This is a test email from Project Defense.");
+        return Results.Ok($"Email sent to {to}");
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem(ex.Message);
+    }
+})
+.WithName("TestEmail")
 .WithOpenApi();
 
 app.Run();

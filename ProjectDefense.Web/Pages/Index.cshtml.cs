@@ -14,16 +14,18 @@ public class IndexModel : PageModel
 
     public IActionResult OnGet()
     {
-        if (User.Identity?.IsAuthenticated == true)
+        if (User.Identity?.IsAuthenticated != true)
         {
-            if (User.IsInRole("Student"))
-            {
-                return RedirectToPage("/Student/Slots/Index");
-            }
-            if (User.IsInRole("Instructor"))
-            {
-                return RedirectToPage("/Instructor/Dashboard");
-            }
+            return RedirectToPage("/Account/Login", new { area = "Identity" });
+        }
+
+        if (User.IsInRole("Student"))
+        {
+            return RedirectToPage("/Student/Slots/Index");
+        }
+        if (User.IsInRole("Instructor"))
+        {
+            return RedirectToPage("/Instructor/Dashboard");
         }
 
         return Page();
