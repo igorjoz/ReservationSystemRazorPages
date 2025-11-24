@@ -1,5 +1,3 @@
-version: '3.4'
-
 services:
   projectdefense.web:
     image: ${DOCKER_REGISTRY-}projectdefenseweb
