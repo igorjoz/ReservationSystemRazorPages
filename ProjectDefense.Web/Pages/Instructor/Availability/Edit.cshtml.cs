@@ -1,0 +1,159 @@
+using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using ProjectDefense.Shared.Data;
+using ProjectDefense.Shared.Entities;
+
+namespace ProjectDefense.Web.Pages.Instructor.Availability;
+
+[Authorize(Roles = "Instructor")]
+public class EditModel : PageModel
+{
+    private readonly AppDbContext _db;
+    private readonly UserManager<ApplicationUser> _userManager;
+
+    public EditModel(AppDbContext db, UserManager<ApplicationUser> userManager)
+    {
+        _db = db;
+        _userManager = userManager;
+    }
+
+    public SelectList RoomOptions { get; set; } = default!;
+
+    public class AvailabilityInput
+    {
+        [Required]
+        public Guid RoomId { get; set; }
+
+        [Required]
+        public DateOnly FromDate { get; set; }
+
+        [Required]
+        public DateOnly ToDate { get; set; }
+
+        [Required]
+        public TimeOnly StartTime { get; set; }
+
+        [Required]
+        public TimeOnly EndTime { get; set; }
+
+        [Range(1, 480)]
+        public int SlotDurationMinutes { get; set; } = 15;
+    }
+
+    [BindProperty]
+    public AvailabilityInput Input { get; set; } = new();
+
+    public async Task<IActionResult> OnGetAsync(Guid id)
+    {
+        var instructorId = _userManager.GetUserId(User);
+        var availability = await _db.Availabilities.FirstOrDefaultAsync(a => a.Id == id && a.InstructorId == instructorId);
+        if (availability == null) return NotFound();
+
+        Input = new AvailabilityInput
+        {
+            RoomId = availability.RoomId,
+            FromDate = availability.FromDate,
+            ToDate = availability.ToDate,
+            StartTime = availability.StartTime,
+            EndTime = availability.EndTime,
+            SlotDurationMinutes = availability.SlotDurationMinutes
+        };
+
+        RoomOptions = new SelectList(await _db.Rooms.OrderBy(r => r.Name).ToListAsync(), nameof(Room.Id), nameof(Room.Name), Input.RoomId);
+        return Page();
+    }
+
+    public async Task<IActionResult> OnPostAsync(Guid id)
+    {
+        var instructorId = _userManager.GetUserId(User)!;
+        var availability = await _db.Availabilities.FirstOrDefaultAsync(a => a.Id == id && a.InstructorId == instructorId);
+        if (availability == null) return NotFound();
+
+        if (!ModelState.IsValid)
+        {
+            RoomOptions = new SelectList(await _db.Rooms.OrderBy(r => r.Name).ToListAsync(), nameof(Room.Id), nameof(Room.Name), Input.RoomId);
+            return Page();
+        }
+
+        if (Input.FromDate > Input.ToDate) { ModelState.AddModelError(string.Empty, "FromDate must be <= ToDate"); RoomOptions = new SelectList(await _db.Rooms.OrderBy(r => r.Name).ToListAsync(), nameof(Room.Id), nameof(Room.Name), Input.RoomId); return Page(); }
+        if (Input.StartTime >= Input.EndTime) { ModelState.AddModelError(string.Empty, "StartTime must be < EndTime"); RoomOptions = new SelectList(await _db.Rooms.OrderBy(r => r.Name).ToListAsync(), nameof(Room.Id), nameof(Room.Name), Input.RoomId); return Page(); }
+
+        // Check for past reservations
+        bool hasPastReservations = await _db.Reservations.AnyAsync(r => r.AvailabilityId == id && r.StartUtc < DateTime.UtcNow);
+        if (hasPastReservations)
+        {
+            ModelState.AddModelError(string.Empty, "Cannot edit availability with past reservations.");
+            RoomOptions = new SelectList(await _db.Rooms.OrderBy(r => r.Name).ToListAsync(), nameof(Room.Id), nameof(Room.Name), Input.RoomId);
+            return Page();
+        }
+
+        // Check overlapping availability (excluding current one)
+        bool overlaps = await _db.Availabilities.AnyAsync(a => a.Id != id && a.RoomId == Input.RoomId &&
+            a.ToDate >= Input.FromDate && Input.ToDate >= a.FromDate &&
+            a.EndTime > Input.StartTime && Input.EndTime > a.StartTime);
+        if (overlaps)
+        {
+            ModelState.AddModelError(string.Empty, "Overlapping availability exists for this room and time range.");
+            RoomOptions = new SelectList(await _db.Rooms.OrderBy(r => r.Name).ToListAsync(), nameof(Room.Id), nameof(Room.Name), Input.RoomId);
+            return Page();
+        }
+
+        // Remove old availability (and slots via cascade)
+        _db.Availabilities.Remove(availability);
+        await _db.SaveChangesAsync();
+
+        // Create new
+        var newAvailability = new InstructorAvailability
+        {
+            Id = Guid.NewGuid(),
+            InstructorId = instructorId,
+            RoomId = Input.RoomId,
+            FromDate = Input.FromDate,
+            ToDate = Input.ToDate,
+            StartTime = Input.StartTime,
+            EndTime = Input.EndTime,
+            SlotDurationMinutes = Input.SlotDurationMinutes
+        };
+        _db.Availabilities.Add(newAvailability);
+
+        // Generate slots
+        foreach (var date in EachDate(Input.FromDate, Input.ToDate))
+        {
+            var start = date.ToDateTime(Input.StartTime, DateTimeKind.Local).ToUniversalTime();
+            var end = date.ToDateTime(Input.EndTime, DateTimeKind.Local).ToUniversalTime();
+            var cursor = start;
+            while (cursor.AddMinutes(Input.SlotDurationMinutes) <= end)
+            {
+                var slotEnd = cursor.AddMinutes(Input.SlotDurationMinutes);
+                // skip blocked periods
+                bool blocked = await _db.BlockedPeriods.AnyAsync(b => b.InstructorId == instructorId && b.FromUtc < slotEnd && b.ToUtc > cursor && (b.RoomId == null || b.RoomId == Input.RoomId));
+                if (!blocked)
+                {
+                    _db.Reservations.Add(new Reservation
+                    {
+                        Id = Guid.NewGuid(),
+                        AvailabilityId = newAvailability.Id,
+                        StartUtc = cursor,
+                        EndUtc = slotEnd,
+                        IsBlocked = false,
+                        IsCanceled = false
+                    });
+                }
+                cursor = slotEnd;
+            }
+        }
+
+        await _db.SaveChangesAsync();
+        return RedirectToPage("Index");
+    }
+
+    private static IEnumerable<DateOnly> EachDate(DateOnly from, DateOnly to)
+    {
+        for (var d = from; d <= to; d = d.AddDays(1)) yield return d;
+    }
+}
