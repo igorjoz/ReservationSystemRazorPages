@@ -27,7 +27,16 @@ public static class DbSeeder
             if (studentConfig.Exists())
             {
                 await EnsureUserAsync(userManager, studentConfig["Email"]!, studentConfig["Password"]!, "Student");
+                // Add second student
+                await EnsureUserAsync(userManager, "student2@example.com", studentConfig["Password"]!, "Student");
             }
+        }
+
+        var dbContext = serviceProvider.GetRequiredService<ProjectDefense.Shared.Data.AppDbContext>();
+        if (!dbContext.Rooms.Any(r => r.Name == "A" && r.Number == "1"))
+        {
+            dbContext.Rooms.Add(new Room { Name = "A", Number = "1" });
+            await dbContext.SaveChangesAsync();
         }
     }
 
