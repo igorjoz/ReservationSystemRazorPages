@@ -64,7 +64,7 @@ public class CreateModel : PageModel
         var instructorId = _userManager.GetUserId(User)!;
 
         // Check overlapping availability for same room and instructor
-        bool overlaps = await _db.Availabilities.AnyAsync(a => a.InstructorId == instructorId && a.RoomId == Input.RoomId &&
+        bool overlaps = await _db.Availabilities.AnyAsync(a => a.RoomId == Input.RoomId &&
             a.ToDate >= Input.FromDate && Input.ToDate >= a.FromDate &&
             a.EndTime > Input.StartTime && Input.EndTime > a.StartTime);
         if (overlaps)

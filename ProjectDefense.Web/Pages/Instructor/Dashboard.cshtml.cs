@@ -45,7 +45,7 @@ public class DashboardModel : PageModel
         {
             var instructorId = _userManager.GetUserId(User)!;
             var slot = await _db.Reservations.Include(r => r.Availability).FirstOrDefaultAsync(r => r.Id == cancelId.Value && r.Availability!.InstructorId == instructorId);
-            if (slot != null && !slot.IsCanceled)
+            if (slot != null && !slot.IsCanceled && slot.EndUtc > DateTime.UtcNow)
             {
                 slot.StudentId = null; // free the slot
                 await _db.SaveChangesAsync();
