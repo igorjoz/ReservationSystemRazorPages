@@ -1,13 +1,15 @@
 ﻿@page
 @model IndexModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = Localizer["Home page"];
 }
 
 <div class="text-center">
-    <h1 class="display-4">Project Defense</h1>
+    <h1 class="display-4">@Localizer["Project Defense"]</h1>
     <p>
-        <a class="btn btn-primary" asp-page="/Student/Slots/Index">Student: Available Slots</a>
-        <a class="btn btn-secondary" asp-page="/Instructor/Dashboard">Instructor: Dashboard</a>
+        <a class="btn btn-primary" asp-page="/Student/Slots/Index">@Localizer["Student: Available Slots"]</a>
+        <a class="btn btn-secondary" asp-page="/Instructor/Dashboard">@Localizer["Instructor: Dashboard"]</a>
     </p>
 </div>
